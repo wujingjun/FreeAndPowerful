@@ -1,4 +1,4 @@
-package com.miejiang.rabbitmq.demo_1;
+package com.miejiang.rabbitmq.生产者和消费者样例;
 
 import com.rabbitmq.client.*;
 
@@ -35,6 +35,7 @@ public class RabbitConsumer {
                     channel.basicAck(envelope.getDeliveryTag(), false);
                 }
             };
+
             channel.basicConsume(QUEUE_NAME,consumer);
             TimeUnit.SECONDS.sleep(5);
             channel.close();

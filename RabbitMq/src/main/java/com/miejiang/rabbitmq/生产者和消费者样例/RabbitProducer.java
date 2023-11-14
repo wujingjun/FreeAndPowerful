@@ -1,9 +1,9 @@
-package com.miejiang.rabbitmq.demo_1;
+package com.miejiang.rabbitmq.生产者和消费者样例;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.MessageProperties;
+import com.rabbitmq.client.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RabbitProducer {
 
@@ -27,11 +27,24 @@ public class RabbitProducer {
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
         // 将交换器与队列通过路由键绑定
         channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_kEY);
-        // 发送一条持久化的消息：hello,world!
-        channel.basicPublish(EXCHANGE_NAME, ROUTING_kEY, MessageProperties.PERSISTENT_TEXT_PLAIN, "hello,world!".getBytes());
+        //使用mandatory参数，如果没有一个队列能处理该消息，则消息会被丢弃，不会被路由到其他队列
+        channel.basicPublish(EXCHANGE_NAME, "routingkey_demo2", MessageProperties.PERSISTENT_TEXT_PLAIN, "hello,world!".getBytes());
         // 关闭频道和连接
         channel.close();
         connection.close();
+
+        Map<String,Object> params = new HashMap<>();
+        params.put("alternate-exchange","myAe");
+        channel.exchangeDeclare("normalExchange","direct",true,false,params);
+        channel.exchangeDeclare("myAe","fanout",true,false,null);
+        channel.queueDeclare("normalQueue",true,false,false,null);
+        channel.queueBind("normalQueue","normalExchange","normalKey");
+        channel.queueDeclare("unrouteQueue",true,false,false,null);
+        channel.queueBind("unrouteQueue","myAe","");
+
+        // 将备份交换器与主交换器关联
+        channel.exchangeBind("normalExchange","myAe","");
+
     }
 
 }
