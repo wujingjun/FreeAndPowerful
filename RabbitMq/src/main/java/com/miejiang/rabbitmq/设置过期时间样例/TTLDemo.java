@@ -6,6 +6,9 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 public class TTLDemo {
 
@@ -21,6 +24,8 @@ public class TTLDemo {
             builder.expiration("600000");
             AMQP.BasicProperties properties = builder.build();
             channel.basicPublish("exchange_name", "ttl_queue", properties, "hello world".getBytes());
+
+            
         } catch (Exception e) {
             log.error("RabbitMQ连接失败", e);
         }
